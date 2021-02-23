@@ -11,7 +11,7 @@ jobs:
         arch:
           [
             "linux/amd64 x86_64",
-            "linux/arm64/v8 aarch64",
+            # "linux/arm64/v8 aarch64",
           ]
     name: Build ${{ matrix.arch }}
     runs-on: ubuntu-latest
@@ -67,9 +67,9 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: paru-x86_64
-      - uses: actions/download-artifact@v2
-        with:
-          name: paru-aarch64
+      # - uses: actions/download-artifact@v2
+      #   with:
+      #     name: paru-aarch64
       - name: Create Release
         id: create_release
         uses: actions/create-release@master
@@ -90,13 +90,13 @@ jobs:
           asset_path: ./paru-x86_64.tar.zst
           asset_name: paru-${{ steps.tags.outputs.tag }}-x86_64.tar.zst
           asset_content_type: application/tar+zstd
-      - name: Upload aarch64 asset
-        id: upload-release-asset-aarch64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./paru-aarch64.tar.zst
-          asset_name: paru-${{ steps.tags.outputs.tag }}-aarch64.tar.zst
-          asset_content_type: application/tar+zstd
+      # - name: Upload aarch64 asset
+      #   id: upload-release-asset-aarch64
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./paru-aarch64.tar.zst
+      #     asset_name: paru-${{ steps.tags.outputs.tag }}-aarch64.tar.zst
+      #     asset_content_type: application/tar+zstd
