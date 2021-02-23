@@ -10,8 +10,8 @@ jobs:
       matrix:
         arch:
           [
-            "linux/amd64 x86_64",
-            # "linux/arm64/v8 aarch64",
+            # "linux/amd64 x86_64",
+            "linux/arm64/v8 aarch64",
           ]
     name: Build ${{ matrix.arch }}
     runs-on: ubuntu-latest
@@ -34,6 +34,13 @@ jobs:
           arch="${{ matrix.arch }}"
           echo ::set-output name=PLATFORM::${arch%% *}
           echo ::set-output name=ARCH::${arch##* }
+      - name: build latest runc
+        run: |
+          sudo apt-get install libseccomp-dev
+          git clone https://github.com/opencontainers/runc
+          cd runc
+          make
+          sudo make install
       - name: Build ${{ matrix.arch }} release
         shell: bash
         run: |
@@ -64,12 +71,12 @@ jobs:
         shell: bash
         run: |
           echo ::set-output name=TAG::${GITHUB_REF/refs\/tags\//}
-      - uses: actions/download-artifact@v2
-        with:
-          name: paru-x86_64
       # - uses: actions/download-artifact@v2
       #   with:
-      #     name: paru-aarch64
+      #     name: paru-x86_64
+      - uses: actions/download-artifact@v2
+        with:
+          name: paru-aarch64
       - name: Create Release
         id: create_release
         uses: actions/create-release@master
@@ -80,23 +87,23 @@ jobs:
           release_name: ${{ steps.tags.outputs.tag }}
           draft: true
           prerelease: false
-      - name: Upload x86_64 asset
-        id: upload-release-asset-x86_64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./paru-x86_64.tar.zst
-          asset_name: paru-${{ steps.tags.outputs.tag }}-x86_64.tar.zst
-          asset_content_type: application/tar+zstd
-      # - name: Upload aarch64 asset
-      #   id: upload-release-asset-aarch64
+      # - name: Upload x86_64 asset
+      #   id: upload-release-asset-x86_64
       #   uses: actions/upload-release-asset@v1
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #   with:
       #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: ./paru-aarch64.tar.zst
-      #     asset_name: paru-${{ steps.tags.outputs.tag }}-aarch64.tar.zst
+      #     asset_path: ./paru-x86_64.tar.zst
+      #     asset_name: paru-${{ steps.tags.outputs.tag }}-x86_64.tar.zst
       #     asset_content_type: application/tar+zstd
+      - name: Upload aarch64 asset
+        id: upload-release-asset-aarch64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./paru-aarch64.tar.zst
+          asset_name: paru-${{ steps.tags.outputs.tag }}-aarch64.tar.zst
+          asset_content_type: application/tar+zstd
