@@ -10,14 +10,19 @@ jobs:
       matrix:
         arch:
           [
-            "linux/amd64 x86_64",
-            "linux/arm64/v8 aarch64",
+            "linux/amd64 x86_64"
           ]
     name: Build ${{ matrix.arch }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: update runc # https://github.com/actions/virtual-environments/issues/2698#issuecomment-779262068
+        run: |
+          sudo apt-get install --assume-yes libseccomp-dev
+          git clone https://github.com/opencontainers/runc
+          cd runc && git checkout v1.0.0-rc93 && make -j`nproc` && sudo make install
+          cd .. && rm --recursive runc
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
         with:
