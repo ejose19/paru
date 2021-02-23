@@ -27,10 +27,21 @@ jobs:
         uses: docker/setup-buildx-action@v1
         with:
           version: latest
+          buildkitd-flags: --oci-worker-binary=/usr/local/sbin/runc
+      # Required as in https://github.com/actions/virtual-environments/issues/2698#issuecomment-779262068
+      - name: build latest runc
+        run: |
+          sudo apt-get install libseccomp-dev
+          git clone https://github.com/opencontainers/runc
+          cd runc
+          make
+          sudo make install
       - name: Read info
         id: tags
         shell: bash
         run: |
+          which runc
+          ls /usr/local/sbin/runc
           arch="${{ matrix.arch }}"
           echo ::set-output name=PLATFORM::${arch%% *}
           echo ::set-output name=ARCH::${arch##* }
