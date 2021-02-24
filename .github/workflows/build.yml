@@ -19,13 +19,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       # Required as in https://github.com/actions/virtual-environments/issues/2698#issuecomment-779262068
-      - name: build latest runc
-        run: |
-          sudo apt-get install libseccomp-dev
-          git clone https://github.com/opencontainers/runc
-          cd runc
-          make
-          sudo make install
+      # - name: build latest runc
+      #   run: |
+      #     sudo apt-get install libseccomp-dev
+      #     git clone https://github.com/opencontainers/runc
+      #     cd runc
+      #     make
+      #     sudo make install
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
         with:
@@ -35,8 +35,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
         with:
           version: latest
-          # Instruct buildkitd to use latest runc instead of buildkit-runc
-          buildkitd-flags: oci-worker-binary=runc
+          driver-opts: image=moby/buildkit:latest
       - name: Read info
         id: tags
         shell: bash
